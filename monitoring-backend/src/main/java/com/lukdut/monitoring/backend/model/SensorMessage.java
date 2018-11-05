@@ -3,10 +3,7 @@ package com.lukdut.monitoring.backend.model;
 
 import org.hibernate.annotations.CreationTimestamp;
 
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
+import javax.persistence.*;
 import java.util.Date;
 import java.util.StringJoiner;
 
@@ -18,9 +15,13 @@ public class SensorMessage {
     @CreationTimestamp
     private Date timestamp;
     private long imei;
+    @Column(columnDefinition="VARCHAR(31)")
     private String state;
+    @Column(columnDefinition="VARCHAR(511)")
     private String sms;
+    @Column(columnDefinition="VARCHAR(127)")
     private String gpsData;
+    @Column(columnDefinition="VARCHAR(511)")
     private String message;
 
     public long getId() {

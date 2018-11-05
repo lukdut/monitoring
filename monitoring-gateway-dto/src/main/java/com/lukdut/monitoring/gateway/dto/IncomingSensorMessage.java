@@ -3,7 +3,7 @@ package com.lukdut.monitoring.gateway.dto;
 import java.io.Serializable;
 import java.util.StringJoiner;
 
-public class SensorMessage implements Serializable {
+public class IncomingSensorMessage implements Serializable {
     private long imei;
     private String state;
     private String sms;
@@ -52,7 +52,7 @@ public class SensorMessage implements Serializable {
 
     @Override
     public String toString() {
-        return new StringJoiner(", ", SensorMessage.class.getSimpleName() + "[", "]")
+        return new StringJoiner(", ", IncomingSensorMessage.class.getSimpleName() + "[", "]")
                 .add("imei=" + imei)
                 .add("state='" + state + "'")
                 .add("sms='" + sms + "'")

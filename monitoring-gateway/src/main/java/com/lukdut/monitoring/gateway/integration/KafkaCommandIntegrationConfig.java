@@ -21,10 +21,8 @@ import java.util.HashMap;
 import java.util.Map;
 
 @Configuration
-public class InputCommandIntegrationConfig {
+public class KafkaCommandIntegrationConfig {
     private static final String COMMANDS_FROM_KAFKA_CHANNEL = "commandsFromKafka";
-    private static final String INVALID_COMMANDS_FROM_KAFKA_CHANNEL = "invalidCommandsFromKafka";
-
 
     @Bean
     public ConsumerFactory<?, ?> consumerFactory(@Value("${gateway.bootstrap}") String bootstrapServer) {

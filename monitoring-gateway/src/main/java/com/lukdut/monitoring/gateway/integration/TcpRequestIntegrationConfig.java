@@ -26,7 +26,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 @Configuration
-public class InputIntegrationConfig {
+public class TcpRequestIntegrationConfig {
     private static final String RAW_INPUT_ERROR_CHANNEL = "rawInputError";
     static final String REQUESTS_CHANNEL = "requests";
     public static final String RAW_INPUT_CHANNEL = "rawInput";
@@ -34,11 +34,6 @@ public class InputIntegrationConfig {
     @Bean
     public AbstractServerConnectionFactory serverFactory(@Value("${gateway.port}") Integer port) {
         return new TcpNetServerConnectionFactory(port);
-    }
-
-    @Bean
-    TcpInboundGateway tcpInboundGateway() {
-        return new TcpInboundGateway();
     }
 
     @Bean
