@@ -1,11 +1,28 @@
-backend:
-  port: 8081
-  topics:
-    messages: input
-    commands: commands
-  bootstrap: localhost:9092
+spring:
+  h2:
+    console:
+      enabled: true
+      path: /console
+  datasource:
+    url: jdbc:h2:file:./test;AUTO_SERVER=TRUE
+    platform: h2
+    username: test
+    password: test
+    driverClassName: org.h2.Driver
+  jpa:
+    hibernate:
+      ddl-auto: update
 
 logging:
   level:
     ROOT: INFO
     com.lukdut.monitoring: DEBUG
+
+server:
+  port: 48080
+
+gateway:
+  topics:
+    messages: input
+    commands: commands
+  bootstrap: localhost:9092
