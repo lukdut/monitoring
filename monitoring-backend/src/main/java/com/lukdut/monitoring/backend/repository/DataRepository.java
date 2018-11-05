@@ -16,6 +16,7 @@ public interface DataRepository extends PagingAndSortingRepository<SensorMessage
     @RestResource(path = "byImei", rel = "byImei")
     Page<SensorMessage> findAllByImeiOrderByTimestampDesc(Pageable pageable, @Param("imei") Long imei);
 
+    @RestResource(exported = false)
     @Query("select distinct message.imei from SensorMessage message")
     List<Long> findAllDistinctImei();
 
