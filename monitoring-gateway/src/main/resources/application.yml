@@ -1,0 +1,11 @@
+gateway:
+  port: 37466
+  topics:
+    messages: input
+    commands: commands
+  bootstrap: localhost:9092
+
+logging:
+  level:
+    ROOT: INFO
+    com.lukdut.monitoring: DEBUG
