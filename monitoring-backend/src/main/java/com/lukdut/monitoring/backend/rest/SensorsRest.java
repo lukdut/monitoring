@@ -36,6 +36,9 @@ public class SensorsRest implements ResourceProcessor<RepositoryLinksResource> {
 
     @GetMapping("/" + STATUS)
     public HttpEntity<Status> status(@RequestParam(value = "imei") Long imei) {
+        if(imei==null){
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
         //TODO get status from DB
         Status status = new Status((imei & 1L) == 0 ? "LOCKED" : "UNLOCKED");
         status.add(linkTo(methodOn(SensorsRest.class).status(imei)).withSelfRel());

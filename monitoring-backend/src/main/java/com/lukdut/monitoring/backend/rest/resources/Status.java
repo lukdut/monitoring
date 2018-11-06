@@ -3,13 +3,13 @@ package com.lukdut.monitoring.backend.rest.resources;
 import org.springframework.hateoas.ResourceSupport;
 
 public class Status extends ResourceSupport {
-    private final String value;
+    private final String status;
 
-    public Status(String value) {
-        this.value = value;
+    public Status(String status) {
+        this.status = status;
     }
 
-    public String getValue() {
-        return value;
+    public String getStatus() {
+        return status;
     }
 }
