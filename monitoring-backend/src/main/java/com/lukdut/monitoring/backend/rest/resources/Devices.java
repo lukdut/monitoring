@@ -1,4 +1,4 @@
-package com.lukdut.monitoring.backend.repository;
+package com.lukdut.monitoring.backend.rest.resources;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
