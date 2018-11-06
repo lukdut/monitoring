@@ -1,20 +1,29 @@
 package com.lukdut.monitoring.backend.model;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import java.util.StringJoiner;
 
 @Entity
 public class Sensor {
+    public Sensor(){}
+
+    public Sensor(Long imei){
+        this.imei = imei;
+    }
+
     @Id
-    private long imei;
+    @JsonProperty
+    private Long imei;
     private String state;
 
-    public long getImei() {
+    public Long getImei() {
         return imei;
     }
 
-    public void setImei(long imei) {
+    public void setImei(Long imei) {
         this.imei = imei;
     }
 

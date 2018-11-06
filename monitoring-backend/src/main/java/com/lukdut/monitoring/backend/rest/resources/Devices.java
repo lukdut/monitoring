@@ -1,20 +1,18 @@
 package com.lukdut.monitoring.backend.rest.resources;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonProperty;
+import org.springframework.data.domain.Page;
 import org.springframework.hateoas.ResourceSupport;
 
-import java.util.List;
-
 public class Devices extends ResourceSupport {
-    private final List<Long> imeis;
+    private final Page<Long> devices;
 
     @JsonCreator
-    public Devices(@JsonProperty("imeis") List<Long> imeis) {
-        this.imeis = imeis;
+    public Devices(Page<Long> devices) {
+        this.devices = devices;
     }
 
-    public List<Long> getContent() {
-        return imeis;
+    public Page<Long> getDevices() {
+        return devices;
     }
 }

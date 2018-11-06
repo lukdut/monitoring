@@ -3,6 +3,7 @@ package com.lukdut.monitoring.backend.integration;
 import com.lukdut.monitoring.backend.model.IncomingMessageTransformer;
 import com.lukdut.monitoring.backend.model.SensorMessage;
 import com.lukdut.monitoring.backend.repository.DataRepository;
+import com.lukdut.monitoring.backend.repository.SensorRepository;
 import com.lukdut.monitoring.gateway.dto.IncomingSensorMessage;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.common.serialization.StringDeserializer;
@@ -58,11 +59,13 @@ public class SensorMessageIntegrationConfig {
     }
 
     @Bean
-    IntegrationFlow commandsFlow(DataRepository repository) {
+    IntegrationFlow commandsFlow(DataRepository repository, SensorRepository sensorRepository) {
         return f -> f.channel(MESSAGES_FROM_KAFKA_CHANNEL)
                 .transform(Transformers.fromJson(IncomingSensorMessage.class))
                 .log()
                 .transform(new IncomingMessageTransformer())
+                //Only registered devices
+                .filter(SensorMessage.class, sensorMessage -> sensorRepository.existsByImei(sensorMessage.getImei()))
                 .handle(message -> {
                     repository.save((SensorMessage) message.getPayload());
                 });
