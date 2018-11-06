@@ -1,7 +1,5 @@
 package com.lukdut.monitoring.backend.integration;
 
-import com.lukdut.monitoring.backend.model.Command;
-import com.lukdut.monitoring.gateway.dto.OutcomingSensorCommand;
 import org.apache.kafka.clients.producer.ProducerConfig;
 import org.apache.kafka.common.serialization.StringSerializer;
 import org.springframework.beans.factory.annotation.Value;
@@ -13,7 +11,6 @@ import org.springframework.integration.dsl.IntegrationFlow;
 import org.springframework.integration.dsl.MessageChannels;
 import org.springframework.integration.dsl.Transformers;
 import org.springframework.integration.kafka.outbound.KafkaProducerMessageHandler;
-import org.springframework.integration.transformer.GenericTransformer;
 import org.springframework.kafka.core.DefaultKafkaProducerFactory;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.kafka.core.ProducerFactory;
@@ -62,12 +59,5 @@ public class CommandIntegrationConfig {
         KafkaProducerMessageHandler<String, String> handler = new KafkaProducerMessageHandler<>(kafkaTemplate);
         handler.setTopicExpression(new LiteralExpression(topic));
         return handler;
-    }
-
-    private class SensorCommandTransformer implements GenericTransformer<Command, OutcomingSensorCommand> {
-        @Override
-        public OutcomingSensorCommand transform(Command command) {
-            return new OutcomingSensorCommand(command.getImei(), command.getCommand());
-        }
     }
 }

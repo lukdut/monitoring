@@ -4,6 +4,7 @@ import com.lukdut.monitoring.backend.model.Command;
 import com.lukdut.monitoring.backend.model.Sensor;
 import com.lukdut.monitoring.backend.repository.CommandRepository;
 import com.lukdut.monitoring.backend.repository.SensorRepository;
+import com.lukdut.monitoring.backend.rest.resources.CommandDto;
 import com.lukdut.monitoring.backend.rest.resources.Devices;
 import com.lukdut.monitoring.backend.rest.resources.Status;
 import org.slf4j.Logger;
@@ -90,22 +91,26 @@ public class SensorsRest implements ResourceProcessor<RepositoryLinksResource> {
     }
 
     @PostMapping("/" + COMMAND)
-    public HttpEntity<Long> command(@RequestBody Command command) {
-        if (command == null || command.getImei() == 0 || command.getCommand() == null) {
+    public HttpEntity<Long> command(@RequestBody CommandDto commandDto) {
+        if (commandDto == null || commandDto.getImei() == 0 || commandDto.getCommand() == null) {
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
-        if (!sensorRepository.existsByImei(command.getImei())) {
+        if (sensorRepository.existsByImei(commandDto.getImei())) {
             try {
+                Command command = new Command(commandDto.getImei(), commandDto.getCommand());
                 commandRepository.save(command);
-                commandsChannel.send(MessageBuilder.withPayload(command).build());
-                LOG.info("New command registered for imei {}", command.getImei());
+                commandsChannel.send(MessageBuilder.withPayload(commandDto).build());
+                LOG.info("New command registered for imei {}", commandDto.getImei());
+                return new ResponseEntity<>(command.getId(), HttpStatus.OK);
             } catch (Exception e) {
-                LOG.warn("Can not register new command with imei={}", command.getImei(), e);
+                LOG.warn("Can not register new command with imei={}", commandDto.getImei(), e);
             }
+        } else {
+            LOG.warn("Device with imei {} does not exists", commandDto.getImei());
         }
-
-        return new ResponseEntity<>(command.getId(), HttpStatus.OK);
+        return new ResponseEntity<>(0L, HttpStatus.OK);
     }
+
 
     @Override
     public RepositoryLinksResource process(RepositoryLinksResource resource) {

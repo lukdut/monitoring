@@ -2,22 +2,28 @@ package com.lukdut.monitoring.backend.model;
 
 import org.hibernate.annotations.CreationTimestamp;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.Id;
+import javax.persistence.*;
 import java.util.Date;
 
 @Entity
 public class Command {
     @Id
-    private Long id;
-    private Long imei;
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private long id;
+    private long imei;
     @Column(columnDefinition = "VARCHAR(31)")
     private String command;
     @CreationTimestamp
     private Date timestamp;
 
-    public Long getId() {
+    public Command(){}
+
+    public Command(long imei, String command) {
+        this.imei = imei;
+        this.command = command;
+    }
+
+    public long getId() {
         return id;
     }
 
@@ -25,11 +31,11 @@ public class Command {
         this.id = id;
     }
 
-    public Long getImei() {
+    public long getImei() {
         return imei;
     }
 
-    public void setImei(Long imei) {
+    public void setImei(long imei) {
         this.imei = imei;
     }
 
