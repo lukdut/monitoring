@@ -3,14 +3,14 @@ package com.lukdut.monitoring.gateway.dto;
 import java.io.Serializable;
 import java.util.StringJoiner;
 
-public class SensorCommand implements Serializable {
+public class OutcomingSensorCommand implements Serializable {
     private long imei;
     private String command;
 
-    public SensorCommand() {
+    public OutcomingSensorCommand() {
     }
 
-    public SensorCommand(long imei, String command) {
+    public OutcomingSensorCommand(long imei, String command) {
         this.imei = imei;
         this.command = command;
     }
@@ -33,7 +33,7 @@ public class SensorCommand implements Serializable {
 
     @Override
     public String toString() {
-        return new StringJoiner(", ", SensorCommand.class.getSimpleName() + "[", "]")
+        return new StringJoiner(", ", OutcomingSensorCommand.class.getSimpleName() + "[", "]")
                 .add("imei=" + imei)
                 .add("command='" + command + "'")
                 .toString();

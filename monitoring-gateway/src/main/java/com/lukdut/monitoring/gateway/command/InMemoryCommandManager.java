@@ -1,6 +1,6 @@
 package com.lukdut.monitoring.gateway.command;
 
-import com.lukdut.monitoring.gateway.dto.SensorCommand;
+import com.lukdut.monitoring.gateway.dto.OutcomingSensorCommand;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -18,7 +18,7 @@ public class InMemoryCommandManager implements CommandManager {
     private final Map<Long, Queue<String>> commands = new ConcurrentHashMap<>();
 
     @Override
-    public void addCommand(SensorCommand command) {
+    public void addCommand(OutcomingSensorCommand command) {
         Queue<String> sensorCommandQueue = commands.computeIfAbsent(command.getImei(), imei -> new ConcurrentLinkedQueue<>());
         sensorCommandQueue.add(command.getCommand());
         LOGGER.debug("Added new command: {}", command);

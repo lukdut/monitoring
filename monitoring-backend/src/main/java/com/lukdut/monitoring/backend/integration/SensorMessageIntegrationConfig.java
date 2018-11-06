@@ -1,6 +1,5 @@
 package com.lukdut.monitoring.backend.integration;
 
-import com.lukdut.monitoring.backend.model.IncomingMessageTransformer;
 import com.lukdut.monitoring.backend.model.SensorMessage;
 import com.lukdut.monitoring.backend.repository.DataRepository;
 import com.lukdut.monitoring.backend.repository.SensorRepository;

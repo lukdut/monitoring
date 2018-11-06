@@ -1,7 +1,7 @@
 package com.lukdut.monitoring.gateway.integration;
 
 import com.lukdut.monitoring.gateway.command.CommandManager;
-import com.lukdut.monitoring.gateway.dto.SensorCommand;
+import com.lukdut.monitoring.gateway.dto.OutcomingSensorCommand;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.common.serialization.StringDeserializer;
 import org.springframework.beans.factory.annotation.Value;
@@ -57,11 +57,11 @@ public class KafkaCommandIntegrationConfig {
     @Bean
     IntegrationFlow commandsFlow(CommandManager commandManager) {
         return f -> f.channel(COMMANDS_FROM_KAFKA_CHANNEL)
-                .transform(Transformers.fromJson(SensorCommand.class))
+                .transform(Transformers.fromJson(OutcomingSensorCommand.class))
                 .log()
-                .filter(o -> ((SensorCommand) o).getCommand() != null)
+                .filter(o -> ((OutcomingSensorCommand) o).getCommand() != null)
                 .handle(message -> {
-                    commandManager.addCommand((SensorCommand) message.getPayload());
+                    commandManager.addCommand((OutcomingSensorCommand) message.getPayload());
                 });
     }
 }

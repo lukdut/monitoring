@@ -1,5 +1,6 @@
-package com.lukdut.monitoring.backend.model;
+package com.lukdut.monitoring.backend.integration;
 
+import com.lukdut.monitoring.backend.model.SensorMessage;
 import com.lukdut.monitoring.gateway.dto.IncomingSensorMessage;
 import org.springframework.integration.transformer.GenericTransformer;
 
