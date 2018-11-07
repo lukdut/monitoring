@@ -1,11 +1,11 @@
 package com.lukdut.monitoring.gateway.command;
 
-import com.lukdut.monitoring.gateway.dto.OutcomingSensorCommand;
+import com.lukdut.monitoring.gateway.dto.IntermodularSensorCommand;
 
 import java.util.Optional;
 
 public interface CommandManager {
-    void addCommand(OutcomingSensorCommand command);
+    void addCommand(IntermodularSensorCommand command);
 
-    Optional<String> getCommand(long imei);
+    Optional<IntermodularSensorCommand> getCommand(long imei);
 }

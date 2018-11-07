@@ -32,5 +32,7 @@ server:
 gateway:
   topics:
     messages: input
-    commands: commands
+    commands:
+      request: commands
+      response:  commandsReply
   bootstrap: localhost:9092

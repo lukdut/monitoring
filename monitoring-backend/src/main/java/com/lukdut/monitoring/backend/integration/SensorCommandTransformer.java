@@ -1,12 +1,12 @@
 package com.lukdut.monitoring.backend.integration;
 
-import com.lukdut.monitoring.backend.rest.resources.CommandDto;
-import com.lukdut.monitoring.gateway.dto.OutcomingSensorCommand;
+import com.lukdut.monitoring.backend.model.Command;
+import com.lukdut.monitoring.gateway.dto.IntermodularSensorCommand;
 import org.springframework.integration.transformer.GenericTransformer;
 
-public class SensorCommandTransformer implements GenericTransformer<CommandDto, OutcomingSensorCommand> {
+public class SensorCommandTransformer implements GenericTransformer<Command, IntermodularSensorCommand> {
     @Override
-    public OutcomingSensorCommand transform(CommandDto command) {
-        return new OutcomingSensorCommand(command.getImei(), command.getCommand());
+    public IntermodularSensorCommand transform(Command c) {
+        return new IntermodularSensorCommand(c.getId(), c.getImei(), c.getCommand(), c.getTimestamp());
     }
 }

@@ -99,8 +99,8 @@ public class SensorsRest implements ResourceProcessor<RepositoryLinksResource> {
             try {
                 Command command = new Command(commandDto.getImei(), commandDto.getCommand());
                 commandRepository.save(command);
-                commandsChannel.send(MessageBuilder.withPayload(commandDto).build());
-                LOG.info("New command registered for imei {}", commandDto.getImei());
+                commandsChannel.send(MessageBuilder.withPayload(command).build());
+                LOG.info("New command registered for imei {}", command.getImei());
                 return new ResponseEntity<>(command.getId(), HttpStatus.OK);
             } catch (Exception e) {
                 LOG.warn("Can not register new command with imei={}", commandDto.getImei(), e);

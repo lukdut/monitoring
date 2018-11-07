@@ -1,9 +1,11 @@
 package com.lukdut.monitoring.gateway.integration;
 
 import com.lukdut.monitoring.gateway.command.CommandManager;
-import com.lukdut.monitoring.gateway.dto.OutcomingSensorCommand;
+import com.lukdut.monitoring.gateway.dto.CommandState;
+import com.lukdut.monitoring.gateway.dto.IntermodularSensorCommand;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.common.serialization.StringDeserializer;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -16,6 +18,7 @@ import org.springframework.integration.kafka.inbound.KafkaMessageDrivenChannelAd
 import org.springframework.kafka.core.ConsumerFactory;
 import org.springframework.kafka.core.DefaultKafkaConsumerFactory;
 import org.springframework.messaging.MessageChannel;
+import org.springframework.messaging.support.MessageBuilder;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -23,6 +26,7 @@ import java.util.Map;
 @Configuration
 public class KafkaCommandIntegrationConfig {
     private static final String COMMANDS_FROM_KAFKA_CHANNEL = "commandsFromKafka";
+    public static final String COMMANDS_REPLY_CHANNEL = "commandsReply";
 
     @Bean
     public ConsumerFactory<?, ?> consumerFactory(@Value("${gateway.bootstrap}") String bootstrapServer) {
@@ -40,11 +44,16 @@ public class KafkaCommandIntegrationConfig {
         return MessageChannels.direct().get();
     }
 
+    @Bean(COMMANDS_REPLY_CHANNEL)
+    public MessageChannel commandsReplyChannel() {
+        return MessageChannels.direct().get();
+    }
+
     //Flows
     @Bean
     public IntegrationFlow topic1ListenerFromKafkaFlow(
             ConsumerFactory<?, ?> consumerFactory,
-            @Value("${gateway.topics.commands}") String commandsTopic) {
+            @Value("${gateway.topics.commands.request}") String commandsTopic) {
         return IntegrationFlows
                 .from(Kafka.messageDrivenChannelAdapter(
                         consumerFactory,
@@ -55,13 +64,19 @@ public class KafkaCommandIntegrationConfig {
     }
 
     @Bean
-    IntegrationFlow commandsFlow(CommandManager commandManager) {
+    IntegrationFlow commandsFlow(CommandManager commandManager,
+                                 @Qualifier(COMMANDS_REPLY_CHANNEL) MessageChannel commandsReply) {
         return f -> f.channel(COMMANDS_FROM_KAFKA_CHANNEL)
-                .transform(Transformers.fromJson(OutcomingSensorCommand.class))
+                .transform(Transformers.fromJson(IntermodularSensorCommand.class))
                 .log()
-                .filter(o -> ((OutcomingSensorCommand) o).getCommand() != null)
+                .filter(o -> ((IntermodularSensorCommand) o).getCommand() != null)
                 .handle(message -> {
-                    commandManager.addCommand((OutcomingSensorCommand) message.getPayload());
+                    IntermodularSensorCommand command = (IntermodularSensorCommand) message.getPayload();
+                    command.setState(CommandState.QUEUED);
+                    commandManager.addCommand(command);
+                    commandsReply.send(Transformers.toJson().transform(MessageBuilder.withPayload(command).build()));
                 });
     }
+
+
 }

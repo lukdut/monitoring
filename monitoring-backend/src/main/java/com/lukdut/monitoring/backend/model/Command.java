@@ -1,5 +1,6 @@
 package com.lukdut.monitoring.backend.model;
 
+import com.lukdut.monitoring.gateway.dto.CommandState;
 import org.hibernate.annotations.CreationTimestamp;
 
 import javax.persistence.*;
@@ -15,6 +16,7 @@ public class Command {
     private String command;
     @CreationTimestamp
     private Date timestamp;
+    private CommandState state = CommandState.CREATED;
 
     public Command(){}
 
@@ -55,13 +57,21 @@ public class Command {
         this.timestamp = timestamp;
     }
 
+    public CommandState getState() {
+        return state;
+    }
+
+    public void setState(CommandState state) {
+        this.state = state;
+    }
+
     @Override
     public String toString() {
-        return "Command{" +
-                "id=" + id +
+        return "Command{" + "id=" + id +
                 ", imei=" + imei +
                 ", command='" + command + '\'' +
                 ", timestamp=" + timestamp +
+                ", state=" + state +
                 '}';
     }
 }
