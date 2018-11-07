@@ -61,7 +61,7 @@ public class InMemoryCommandManager implements CommandManager {
     @Benchmark
     public void check() {
         LOGGER.trace("Stale commands check fired");
-        commands.forEach((imei, final queue) -> {
+        commands.forEach((imei, queue) -> {
             synchronized (queue) {
                 while (true) {
                     IntermodularSensorCommand command = queue.peek();
