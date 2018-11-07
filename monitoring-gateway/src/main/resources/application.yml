@@ -6,6 +6,8 @@ gateway:
       request: commands
       response:  commandsReply
   bootstrap: localhost:9092
+  command:
+    ttl: 5
 
 logging:
   level:

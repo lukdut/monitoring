@@ -8,12 +8,16 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.integration.annotation.ServiceActivator;
-import org.springframework.integration.dsl.*;
+import org.springframework.integration.dsl.IntegrationFlow;
+import org.springframework.integration.dsl.IntegrationFlows;
+import org.springframework.integration.dsl.MessageChannels;
+import org.springframework.integration.dsl.Transformers;
 import org.springframework.integration.ip.tcp.TcpSendingMessageHandler;
 import org.springframework.integration.ip.tcp.connection.AbstractServerConnectionFactory;
-import org.springframework.integration.scheduling.PollerMetadata;
 import org.springframework.messaging.MessageChannel;
 import org.springframework.messaging.SubscribableChannel;
+
+import java.util.concurrent.Executors;
 
 import static com.lukdut.monitoring.gateway.integration.KafkaCommandIntegrationConfig.COMMANDS_REPLY_CHANNEL;
 import static com.lukdut.monitoring.gateway.integration.TcpRequestIntegrationConfig.REQUESTS_CHANNEL;
@@ -24,11 +28,6 @@ public class TcpResponseIntegrationConfig {
     private static final String COMMANDS_CHANNEL = "commands";
     private static final IntermodularSensorCommand NO_MESSAGE = new IntermodularSensorCommand();
 
-    @Bean(name = PollerMetadata.DEFAULT_POLLER)
-    public PollerMetadata poller() {
-        return Pollers.fixedRate(200).get();
-    }
-
     @Bean
     IntegrationFlow responseFlow(CommandManager commandManager) {
         return f -> f.channel(REQUESTS_CHANNEL)
@@ -37,6 +36,7 @@ public class TcpResponseIntegrationConfig {
                 .filter(IncomingSensorMessage.class, incomingSensorMessage -> incomingSensorMessage.getImei() != 0)
                 .transform(IncomingSensorMessage.class, incomingSensorMessage ->
                         commandManager.getCommand(incomingSensorMessage.getImei()).orElse(NO_MESSAGE))
+                //TODO:check for stale commands
                 .filter(IntermodularSensorCommand.class, command -> command != NO_MESSAGE)
                 .transform(IntermodularSensorCommand.class, command -> {
                     command.setState(CommandState.EXECUTED);
@@ -48,7 +48,7 @@ public class TcpResponseIntegrationConfig {
 
     @Bean(COMMANDS_CHANNEL)
     public SubscribableChannel commands() {
-        return MessageChannels.publishSubscribe().get();
+        return MessageChannels.publishSubscribe(Executors.newFixedThreadPool(2)).get();
     }
 
     @Bean

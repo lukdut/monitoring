@@ -3,6 +3,8 @@ package com.lukdut.monitoring.gateway.command;
 import com.lukdut.monitoring.gateway.dto.IntermodularSensorCommand;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 import java.util.Map;
@@ -16,6 +18,11 @@ public class InMemoryCommandManager implements CommandManager {
     private static final Logger LOGGER = LoggerFactory.getLogger(InMemoryCommandManager.class);
 
     private final Map<Long, Queue<IntermodularSensorCommand>> commands = new ConcurrentHashMap<>();
+    private final int ttlSec;
+
+    public InMemoryCommandManager(@Value("${gateway.command.ttl}") int ttlSec) {
+        this.ttlSec = ttlSec;
+    }
 
     @Override
     public void addCommand(IntermodularSensorCommand command) {
@@ -32,5 +39,11 @@ public class InMemoryCommandManager implements CommandManager {
             return Optional.empty();
         }
         return Optional.ofNullable(sensorCommands.poll());
+    }
+
+    @Scheduled(fixedRate = 1000)
+    public void check() {
+        LOGGER.info("Stale commands check fired");
+        //TODO
     }
 }
