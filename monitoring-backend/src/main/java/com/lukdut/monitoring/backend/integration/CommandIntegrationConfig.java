@@ -55,7 +55,7 @@ public class CommandIntegrationConfig {
     @Bean
     @ServiceActivator(inputChannel = SERIALIZED_COMMANDS_CHANNEL)
     public MessageHandler kafkaSaver(KafkaTemplate<String, String> kafkaTemplate,
-                                     @Value("${gateway.topics.commands}") String topic) {
+                                     @Value("${gateway.topics.commands.request}") String topic) {
         KafkaProducerMessageHandler<String, String> handler = new KafkaProducerMessageHandler<>(kafkaTemplate);
         handler.setTopicExpression(new LiteralExpression(topic));
         return handler;

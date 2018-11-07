@@ -10,7 +10,6 @@ import org.springframework.integration.annotation.ServiceActivator;
 import org.springframework.integration.dsl.IntegrationFlow;
 import org.springframework.integration.dsl.MessageChannels;
 import org.springframework.integration.handler.LoggingHandler;
-import org.springframework.integration.ip.tcp.TcpInboundGateway;
 import org.springframework.integration.ip.tcp.TcpReceivingChannelAdapter;
 import org.springframework.integration.ip.tcp.connection.AbstractServerConnectionFactory;
 import org.springframework.integration.ip.tcp.connection.TcpNetServerConnectionFactory;
@@ -24,6 +23,8 @@ import org.springframework.messaging.MessageHandler;
 
 import java.util.HashMap;
 import java.util.Map;
+
+import static com.lukdut.monitoring.gateway.integration.KafkaCommandIntegrationConfig.COMMANDS_REPLY_CHANNEL;
 
 @Configuration
 public class TcpRequestIntegrationConfig {
@@ -86,6 +87,16 @@ public class TcpRequestIntegrationConfig {
     @ServiceActivator(inputChannel = REQUESTS_CHANNEL)
     public MessageHandler kafkaSaver(KafkaTemplate<String, String> kafkaTemplate,
                                      @Value("${gateway.topics.messages}") String topic) {
+        KafkaProducerMessageHandler<String, String> handler = new KafkaProducerMessageHandler<>(kafkaTemplate);
+        handler.setTopicExpression(new LiteralExpression(topic));
+        return handler;
+    }
+
+    @Bean
+    @ServiceActivator(inputChannel = COMMANDS_REPLY_CHANNEL)
+    public MessageHandler kafkaCommandsReplier(ProducerFactory<String, String> producerFactory,
+                                               @Value("${gateway.topics.commands.response}") String topic) {
+        KafkaTemplate<String, String> kafkaTemplate = new KafkaTemplate<>(producerFactory);
         KafkaProducerMessageHandler<String, String> handler = new KafkaProducerMessageHandler<>(kafkaTemplate);
         handler.setTopicExpression(new LiteralExpression(topic));
         return handler;

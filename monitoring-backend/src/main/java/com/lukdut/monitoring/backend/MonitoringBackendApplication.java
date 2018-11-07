@@ -9,6 +9,7 @@ import org.springframework.integration.annotation.IntegrationComponentScan;
 @IntegrationComponentScan
 @EnableCaching
 public class MonitoringBackendApplication {
+    //TODO: read command response channel
     public static void main(String[] args) {
         SpringApplication.run(MonitoringBackendApplication.class, args);
     }
