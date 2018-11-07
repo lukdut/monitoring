@@ -9,12 +9,10 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.integration.dsl.IntegrationFlow;
-import org.springframework.integration.dsl.IntegrationFlows;
-import org.springframework.integration.dsl.MessageChannels;
-import org.springframework.integration.dsl.Transformers;
+import org.springframework.integration.dsl.*;
 import org.springframework.integration.kafka.dsl.Kafka;
 import org.springframework.integration.kafka.inbound.KafkaMessageDrivenChannelAdapter;
+import org.springframework.integration.scheduling.PollerMetadata;
 import org.springframework.kafka.core.ConsumerFactory;
 import org.springframework.kafka.core.DefaultKafkaConsumerFactory;
 import org.springframework.messaging.MessageChannel;
@@ -27,6 +25,11 @@ import java.util.Map;
 public class KafkaCommandIntegrationConfig {
     private static final String COMMANDS_FROM_KAFKA_CHANNEL = "commandsFromKafka";
     public static final String COMMANDS_REPLY_CHANNEL = "commandsReply";
+
+    @Bean(name = PollerMetadata.DEFAULT_POLLER)
+    public PollerMetadata poller() {
+        return Pollers.fixedRate(200).get();
+    }
 
     @Bean
     public ConsumerFactory<?, ?> consumerFactory(@Value("${gateway.bootstrap}") String bootstrapServer) {
@@ -46,7 +49,7 @@ public class KafkaCommandIntegrationConfig {
 
     @Bean(COMMANDS_REPLY_CHANNEL)
     public MessageChannel commandsReplyChannel() {
-        return MessageChannels.direct().get();
+        return MessageChannels.queue(100).get();
     }
 
     //Flows
