@@ -15,18 +15,19 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 public class InMemoryCommandManager implements CommandManager {
     private static final Logger LOGGER = LoggerFactory.getLogger(InMemoryCommandManager.class);
 
-    private final Map<Long, Queue<String>> commands = new ConcurrentHashMap<>();
+    private final Map<Long, Queue<IntermodularSensorCommand>> commands = new ConcurrentHashMap<>();
 
     @Override
     public void addCommand(IntermodularSensorCommand command) {
-        Queue<String> sensorCommandQueue = commands.computeIfAbsent(command.getImei(), imei -> new ConcurrentLinkedQueue<>());
-        sensorCommandQueue.add(command.getCommand());
+        Queue<IntermodularSensorCommand> sensorCommandQueue =
+                commands.computeIfAbsent(command.getImei(), imei -> new ConcurrentLinkedQueue<>());
+        sensorCommandQueue.add(command);
         LOGGER.debug("Added new command: {}", command);
     }
 
     @Override
-    public Optional<String> getCommand(long imei) {
-        Queue<String> sensorCommands = commands.get(imei);
+    public Optional<IntermodularSensorCommand> getCommand(long imei) {
+        Queue<IntermodularSensorCommand> sensorCommands = commands.get(imei);
         if (sensorCommands == null) {
             return Optional.empty();
         }

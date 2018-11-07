@@ -7,5 +7,5 @@ import java.util.Optional;
 public interface CommandManager {
     void addCommand(IntermodularSensorCommand command);
 
-    Optional<String> getCommand(long imei);
+    Optional<IntermodularSensorCommand> getCommand(long imei);
 }

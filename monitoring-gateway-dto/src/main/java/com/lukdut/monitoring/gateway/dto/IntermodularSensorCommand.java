@@ -62,12 +62,12 @@ public class IntermodularSensorCommand implements Serializable {
 
     @Override
     public String toString() {
-        return "{\"IntermodularSensorCommand\":{"
-                + "                        \"imei\":\"" + imei + "\""
-                + ",                         \"id\":\"" + id + "\""
-                + ",                         \"command\":\"" + command + "\""
-                + ",                         \"creationDate\":" + creationDate
-                + ",                         \"state\":\"" + state + "\""
-                + "}}";
+        return "IntermodularSensorCommand{" +
+                "imei=" + imei +
+                ", id=" + id +
+                ", command='" + command + '\'' +
+                ", creationDate=" + creationDate +
+                ", state=" + state +
+                '}';
     }
 }
