@@ -5,7 +5,6 @@ import org.hibernate.annotations.CreationTimestamp;
 
 import javax.persistence.*;
 import java.util.Date;
-import java.util.StringJoiner;
 
 @Entity
 public class SensorMessage {
@@ -19,8 +18,10 @@ public class SensorMessage {
     private String state;
     @Column(columnDefinition="VARCHAR(511)")
     private String sms;
+    @Column(columnDefinition="VARCHAR(511)")
+    private String ussd;
     @Column(columnDefinition="VARCHAR(127)")
-    private String gpsData;
+    private String data;
     @Column(columnDefinition="VARCHAR(511)")
     private String message;
 
@@ -57,14 +58,6 @@ public class SensorMessage {
         this.sms = sms;
     }
 
-    public String getGpsData() {
-        return gpsData;
-    }
-
-    public void setGpsData(String gpsData) {
-        this.gpsData = gpsData;
-    }
-
     public String getMessage() {
         return message;
     }
@@ -81,16 +74,33 @@ public class SensorMessage {
         this.timestamp = timestamp;
     }
 
+    public String getUssd() {
+        return ussd;
+    }
+
+    public void setUssd(String ussd) {
+        this.ussd = ussd;
+    }
+
+    public String getData() {
+        return data;
+    }
+
+    public void setData(String data) {
+        this.data = data;
+    }
+
     @Override
     public String toString() {
-        return new StringJoiner(", ", SensorMessage.class.getSimpleName() + "[", "]")
-                .add("id=" + id)
-                .add("imei=" + imei)
-                .add("timestamp=" + timestamp)
-                .add("state='" + state + "'")
-                .add("sms='" + sms + "'")
-                .add("gpsData='" + gpsData + "'")
-                .add("message='" + message + "'")
-                .toString();
+        return "SensorMessage{" +
+                "id=" + id +
+                ", timestamp=" + timestamp +
+                ", imei=" + imei +
+                ", state='" + state + '\'' +
+                ", sms='" + sms + '\'' +
+                ", ussd='" + ussd + '\'' +
+                ", data='" + data + '\'' +
+                ", message='" + message + '\'' +
+                '}';
     }
 }

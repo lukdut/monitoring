@@ -12,7 +12,7 @@ public class IncomingMessageTransformer implements GenericTransformer<IncomingSe
         sensorMessage.setSms(dto.getSms());
         sensorMessage.setState(dto.getState());
         sensorMessage.setMessage(dto.getMessage());
-        sensorMessage.setGpsData(dto.getGpsData());
+        sensorMessage.setData(dto.getGpsData());
         return sensorMessage;
     }
 }

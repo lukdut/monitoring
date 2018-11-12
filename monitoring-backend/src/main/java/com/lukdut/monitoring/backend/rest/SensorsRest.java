@@ -34,7 +34,6 @@ public class SensorsRest implements ResourceProcessor<RepositoryLinksResource> {
     private static final Logger LOG = LoggerFactory.getLogger(SensorsRest.class);
     private static final String ALL_DEVICES = "allDevices";
     private static final String STATUS = "status";
-    private static final String REGISTER = "register";
     private static final String COMMAND = "command";
 
     private final SensorRepository sensorRepository;
@@ -73,23 +72,6 @@ public class SensorsRest implements ResourceProcessor<RepositoryLinksResource> {
         return new ResponseEntity<>(status, HttpStatus.OK);
     }
 
-    @PostMapping("/" + REGISTER)
-    public HttpEntity<Long> register(@RequestBody Long imei) {
-        if (imei == null) {
-            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
-        }
-        if (!sensorRepository.existsByImei(imei)) {
-            try {
-                sensorRepository.save(new Sensor(imei));
-                LOG.info("New device registered with imei {}", imei);
-            } catch (Exception e) {
-                LOG.warn("Can not register new device with imei={}", imei, e);
-            }
-        }
-
-        return new ResponseEntity<>(imei, HttpStatus.OK);
-    }
-
     @PostMapping("/" + COMMAND)
     public HttpEntity<Long> command(@RequestBody CommandDto commandDto) {
         if (commandDto == null || commandDto.getImei() == 0 || commandDto.getCommand() == null) {
@@ -116,7 +98,6 @@ public class SensorsRest implements ResourceProcessor<RepositoryLinksResource> {
     public RepositoryLinksResource process(RepositoryLinksResource resource) {
         resource.add(linkTo(methodOn(SensorsRest.class).allDevices(null)).withRel(ALL_DEVICES));
         resource.add(linkTo(methodOn(SensorsRest.class).status(null)).withRel(STATUS));
-        resource.add(linkTo(methodOn(SensorsRest.class).register(null)).withRel(REGISTER));
         resource.add(linkTo(methodOn(SensorsRest.class).command(null)).withRel(COMMAND));
         return resource;
     }

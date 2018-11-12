@@ -1,12 +1,12 @@
 package com.lukdut.monitoring.gateway.dto;
 
 import java.io.Serializable;
-import java.util.StringJoiner;
 
 public class IncomingSensorMessage implements Serializable {
     private long imei;
     private String state;
     private String sms;
+    private String ussd;
     private String gpsData;
     private String message;
 
@@ -50,14 +50,23 @@ public class IncomingSensorMessage implements Serializable {
         this.message = message;
     }
 
+    public String getUssd() {
+        return ussd;
+    }
+
+    public void setUssd(String ussd) {
+        this.ussd = ussd;
+    }
+
     @Override
     public String toString() {
-        return new StringJoiner(", ", IncomingSensorMessage.class.getSimpleName() + "[", "]")
-                .add("imei=" + imei)
-                .add("state='" + state + "'")
-                .add("sms='" + sms + "'")
-                .add("gpsData='" + gpsData + "'")
-                .add("message='" + message + "'")
-                .toString();
+        return "IncomingSensorMessage{" +
+                "imei=" + imei +
+                ", state='" + state + '\'' +
+                ", sms='" + sms + '\'' +
+                ", ussd='" + ussd + '\'' +
+                ", gpsData='" + gpsData + '\'' +
+                ", message='" + message + '\'' +
+                '}';
     }
 }
