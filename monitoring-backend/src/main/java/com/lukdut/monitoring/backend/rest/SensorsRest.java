@@ -5,14 +5,10 @@ import com.lukdut.monitoring.backend.model.Sensor;
 import com.lukdut.monitoring.backend.repository.CommandRepository;
 import com.lukdut.monitoring.backend.repository.SensorRepository;
 import com.lukdut.monitoring.backend.rest.resources.CommandDto;
-import com.lukdut.monitoring.backend.rest.resources.Devices;
 import com.lukdut.monitoring.backend.rest.resources.Status;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.Pageable;
 import org.springframework.data.rest.webmvc.RepositoryLinksResource;
 import org.springframework.hateoas.ResourceProcessor;
 import org.springframework.http.HttpEntity;
@@ -23,7 +19,6 @@ import org.springframework.messaging.support.MessageBuilder;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 import static com.lukdut.monitoring.backend.integration.CommandIntegrationConfig.COMMANDS_TO_KAFKA_CHANNEL;
 import static org.springframework.hateoas.mvc.ControllerLinkBuilder.linkTo;
@@ -47,18 +42,6 @@ public class SensorsRest implements ResourceProcessor<RepositoryLinksResource> {
         this.sensorRepository = sensorRepository;
         this.commandRepository = commandRepository;
         this.commandsChannel = commandsChannel;
-    }
-
-    @GetMapping("/" + ALL_DEVICES)
-    public HttpEntity<Devices> allDevices(Pageable pageable) {
-        if (pageable == null) {
-            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
-        }
-        Page<Long> longs = new PageImpl<>(sensorRepository.findAll(pageable)
-                .get().map(Sensor::getImei).collect(Collectors.toList()));
-        Devices devices = new Devices(longs);
-        devices.add(linkTo(methodOn(SensorsRest.class).allDevices(pageable)).withSelfRel());
-        return new ResponseEntity<>(devices, HttpStatus.OK);
     }
 
     @GetMapping("/" + STATUS)
@@ -96,7 +79,6 @@ public class SensorsRest implements ResourceProcessor<RepositoryLinksResource> {
 
     @Override
     public RepositoryLinksResource process(RepositoryLinksResource resource) {
-        resource.add(linkTo(methodOn(SensorsRest.class).allDevices(null)).withRel(ALL_DEVICES));
         resource.add(linkTo(methodOn(SensorsRest.class).status(null)).withRel(STATUS));
         resource.add(linkTo(methodOn(SensorsRest.class).command(null)).withRel(COMMAND));
         return resource;
