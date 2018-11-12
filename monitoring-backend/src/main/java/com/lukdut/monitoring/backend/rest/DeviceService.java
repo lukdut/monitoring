@@ -73,4 +73,13 @@ public class DeviceService {
             sensorRepository.deleteByImei(imei);
         }
     }
+
+    @GetMapping("/status")
+    public String status(@RequestParam Long imei) {
+        if (imei == null || imei == 0) {
+            return "ABSENT";
+        }
+        Optional<Sensor> optionalSensor = sensorRepository.findById(imei);
+        return optionalSensor.map(Sensor::getState).orElse("ABSENT");
+    }
 }
