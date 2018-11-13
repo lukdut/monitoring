@@ -12,9 +12,12 @@ import java.util.List;
 public interface DataRepository extends PagingAndSortingRepository<SensorMessage, Long> {
     Page<SensorMessage> findAllByImeiOrderByTimestampDesc(Pageable pageable, @Param("imei") Long imei);
 
-    @Deprecated
-    @Query("select distinct message.imei from SensorMessage message")
-    List<Long> findAllDistinctImei();
-
-    List<SensorMessage> findAllFirst1ByImeiOrderByTimestampDesc(List<Long> imeis);
+    @Query(value = "SELECT a.*\n" +
+            "FROM SENSOR_MESSAGE a\n" +
+            "       INNER JOIN (SELECT IMEI, MAX(TIMESTAMP) TIMESTAMP\n" +
+            "                   FROM SENSOR_MESSAGE\n" +
+            "                   where IMEI in (:imeiList)\n" +
+            "                     and DATA is not null\n" +
+            "                   GROUP BY IMEI) b ON a.IMEI = b.IMEI and a.TIMESTAMP = b.TIMESTAMP;", nativeQuery = true)
+    List<SensorMessage> findLastData(@Param("imeiList") List<Long> imeiList);
 }

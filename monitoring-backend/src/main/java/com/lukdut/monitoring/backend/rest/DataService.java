@@ -1,14 +1,13 @@
 package com.lukdut.monitoring.backend.rest;
 
+import com.lukdut.monitoring.backend.model.SensorMessage;
 import com.lukdut.monitoring.backend.repository.DataRepository;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/data")
@@ -20,15 +19,13 @@ public class DataService {
     }
 
     @GetMapping("/lastData")
-    //FIXME
-    public Map<Long, String> getLastData(List<Long> imeis) {
-        return new HashMap<>();
-        /*if (imeis == null || imeis.isEmpty()) {
+    public Map<Long, String> getLastData(Long[] imeis) {
+        if (imeis == null || imeis.length==0) {
             return new HashMap<>();
         } else {
-            return dataRepository.findAllFirst1ByImeiOrderByTimestampDesc(imeis).stream()
+            return dataRepository.findLastData(Arrays.asList(imeis)).stream()
                     .collect(Collectors.toMap(SensorMessage::getImei, SensorMessage::getData));
-        }*/
+        }
     }
 
     //TODO
