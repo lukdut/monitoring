@@ -20,7 +20,7 @@ public class DataService {
 
     @GetMapping("/lastData")
     public Map<Long, String> getLastData(Long[] imeis) {
-        if (imeis == null || imeis.length==0) {
+        if (imeis == null || imeis.length == 0) {
             return new HashMap<>();
         } else {
             return dataRepository.findLastData(Arrays.asList(imeis)).stream()

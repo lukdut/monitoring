@@ -18,6 +18,7 @@ public interface DataRepository extends PagingAndSortingRepository<SensorMessage
             "                   FROM SENSOR_MESSAGE\n" +
             "                   where IMEI in (:imeiList)\n" +
             "                     and DATA is not null\n" +
-            "                   GROUP BY IMEI) b ON a.IMEI = b.IMEI and a.TIMESTAMP = b.TIMESTAMP;", nativeQuery = true)
+            "                   GROUP BY IMEI) b ON a.IMEI = b.IMEI and a.TIMESTAMP = b.TIMESTAMP where DATA is not null;",
+            nativeQuery = true)
     List<SensorMessage> findLastData(@Param("imeiList") List<Long> imeiList);
 }

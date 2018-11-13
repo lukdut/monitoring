@@ -43,13 +43,15 @@ public class DataRepositoryTest {
 
 
     @Before
-    public void before() {
+    public void before() throws InterruptedException {
         sensorRepository.save(new Sensor(1L));
         sensorRepository.save(new Sensor(2L));
         sensorRepository.save(new Sensor(3L));
 
         dataRepository.save(createMessage(1, "data1"));
+        Thread.sleep(1);
         dataRepository.save(createMessage(1, "data2"));
+        Thread.sleep(1);
         dataRepository.save(createMessage(1, "data3"));
 
         dataRepository.save(createMessage(2, "data4"));
