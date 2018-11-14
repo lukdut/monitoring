@@ -5,6 +5,7 @@ import com.lukdut.monitoring.backend.repository.CommandRepository;
 import com.lukdut.monitoring.backend.repository.SensorRepository;
 import com.lukdut.monitoring.backend.rest.resources.CommandDto;
 import com.lukdut.monitoring.gateway.dto.CommandState;
+import io.swagger.annotations.ApiOperation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -33,6 +34,8 @@ public class CommandService {
     }
 
     @PostMapping("/add")
+    @ApiOperation(value = "Create new command",
+            notes = "Will create new command for device with the specified imei, returns created command's id")
     public Long add(@RequestBody CommandDto commandDto) {
         if (commandDto == null || commandDto.getImei() == 0 || commandDto.getCommand() == null) {
             return 0L;
@@ -54,6 +57,8 @@ public class CommandService {
     }
 
     @GetMapping("/status")
+    @ApiOperation(value = "Read command status",
+            notes = "Will return status of the command with specified id")
     public CommandState status(@RequestParam Long commandId) {
         if (commandId == null) {
             return CommandState.NOT_FOUND;

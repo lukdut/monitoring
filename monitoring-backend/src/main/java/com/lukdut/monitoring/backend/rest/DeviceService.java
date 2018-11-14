@@ -3,6 +3,7 @@ package com.lukdut.monitoring.backend.rest;
 import com.lukdut.monitoring.backend.model.Sensor;
 import com.lukdut.monitoring.backend.repository.SensorRepository;
 import com.lukdut.monitoring.backend.rest.resources.DeviceDto;
+import io.swagger.annotations.ApiOperation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.web.bind.annotation.*;
@@ -24,6 +25,8 @@ public class DeviceService {
     }
 
     @PostMapping("/add")
+    @ApiOperation(value = "Register new device",
+            notes = "Will register new device with the specified imei")
     public synchronized long add(@RequestBody DeviceDto deviceDto) {
         if (deviceDto.getImei() == null || deviceDto.getImei() == 0) {
             return 0;
@@ -41,6 +44,7 @@ public class DeviceService {
     }
 
     @GetMapping("/knownImei")
+    @ApiOperation(value = "Read all registered imeis")
     public Collection<Long> all() {
         LOG.debug("getting all devices' imeis");
         return StreamSupport.stream(sensorRepository.findAll().spliterator(), false)
@@ -49,6 +53,8 @@ public class DeviceService {
     }
 
     @PutMapping("/update")
+    @ApiOperation(value = "Update device",
+            notes = "Will update device info with the specified imei")
     public synchronized void update(@RequestBody DeviceDto deviceDto) {
         LOG.debug("Updating device " + deviceDto);
         if (deviceDto.getImei() != null && deviceDto.getImei() != 0) {
@@ -67,6 +73,7 @@ public class DeviceService {
     }
 
     @DeleteMapping("/delete")
+    @ApiOperation(value = "!!!Delete device with the specified imei!!!")
     public void del(@RequestParam Long imei) {
         if (imei != null && imei != 0) {
             LOG.warn("deleting device with imei={}" + imei);
@@ -75,6 +82,8 @@ public class DeviceService {
     }
 
     @GetMapping("/status")
+    @ApiOperation(value = "Get device status",
+            notes = "Will return status of the command device specified imei")
     public String status(@RequestParam Long imei) {
         if (imei == null || imei == 0) {
             return "ABSENT";
