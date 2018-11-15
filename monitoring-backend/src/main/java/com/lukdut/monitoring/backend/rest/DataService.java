@@ -40,13 +40,20 @@ public class DataService {
             result = new ArrayList<>();
         } else {
             Date endDate;
-            if (endTimestamp == null || endTimestamp == 0) {
+            if (endTimestamp == null) {
                 endDate = new Date();
             } else {
                 endDate = new Date(endTimestamp);
             }
 
-            if (beginTimestamp >= endDate.getTime()) {
+            Date beginDate;
+            if (beginTimestamp == null) {
+                beginDate = new Date(0);
+            } else {
+                beginDate = new Date(beginTimestamp);
+            }
+
+            if (beginDate.getTime() >= endDate.getTime()) {
                 result = new ArrayList<>();
             } else {
                 result = dataRepository.findDataLog(imei, new Date(beginTimestamp), endDate).stream()

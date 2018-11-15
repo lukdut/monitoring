@@ -26,21 +26,22 @@ public class DeviceService {
 
     @PostMapping("/add")
     @ApiOperation(value = "Register new device",
-            notes = "Will register new device with the specified imei")
+            notes = "Will register new device with the specified imei, returns 0 if failed or already exists")
     public synchronized long add(@RequestBody DeviceDto deviceDto) {
         if (deviceDto.getImei() == null || deviceDto.getImei() == 0) {
             return 0;
         }
         Long imei = deviceDto.getImei();
+        long id = 0;
         if (!sensorRepository.existsByImei(imei)) {
             try {
-                sensorRepository.save(new Sensor(imei));
+                id = sensorRepository.save(new Sensor(imei)).getId();
                 LOG.info("New device registered with imei {}", imei);
             } catch (Exception e) {
                 LOG.warn("Can not register new device with imei={}", imei, e);
             }
         }
-        return imei;
+        return id;
     }
 
     @GetMapping("/knownImei")
