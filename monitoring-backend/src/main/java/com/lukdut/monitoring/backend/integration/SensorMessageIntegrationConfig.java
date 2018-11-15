@@ -29,7 +29,6 @@ import static org.springframework.integration.dsl.Transformers.fromJson;
 @Configuration
 public class SensorMessageIntegrationConfig {
     private static final String MESSAGES_FROM_KAFKA_CHANNEL = "messagesFromKafka";
-    private static final String COMMAND_RESPONSE_CHANNEL = "commandResponse";
 
     @Bean
     public ConsumerFactory<?, ?> stringConsumerFactory(@Value("${gateway.bootstrap}") String bootstrapServer) {
@@ -70,7 +69,14 @@ public class SensorMessageIntegrationConfig {
                 //Only registered devices
                 .filter(SensorMessage.class, sensorMessage -> sensorRepository.existsByImei(sensorMessage.getImei()))
                 .handle(message -> {
-                    repository.save((SensorMessage) message.getPayload());
+                    SensorMessage sensorMessage = (SensorMessage) message.getPayload();
+                    repository.save(sensorMessage);
+                    if (sensorMessage.getState() != null) {
+                        sensorRepository.findByImei(sensorMessage.getImei()).ifPresent(sensor -> {
+                            sensor.setState(sensorMessage.getState());
+                            sensorRepository.save(sensor);
+                        });
+                    }
                 });
     }
 

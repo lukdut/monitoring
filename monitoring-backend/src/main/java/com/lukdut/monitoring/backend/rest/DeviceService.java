@@ -28,12 +28,9 @@ public class DeviceService {
     @ApiOperation(value = "Register new device",
             notes = "Will register new device with the specified imei, returns 0 if failed or already exists")
     public synchronized long add(@RequestBody DeviceDto deviceDto) {
-        if (deviceDto.getImei() == null || deviceDto.getImei() == 0) {
-            return 0;
-        }
         Long imei = deviceDto.getImei();
         long id = 0;
-        if (!sensorRepository.existsByImei(imei)) {
+        if (imei != null && imei != 0 & !sensorRepository.existsByImei(imei)) {
             try {
                 id = sensorRepository.save(new Sensor(imei)).getId();
                 LOG.info("New device registered with imei {}", imei);
@@ -74,7 +71,7 @@ public class DeviceService {
     }
 
     @DeleteMapping("/delete")
-    @ApiOperation(value = "!!!Delete device with the specified imei!!!")
+    @ApiOperation(value = "!!! Delete device with the specified imei !!!")
     public void del(@RequestParam Long imei) {
         if (imei != null && imei != 0) {
             LOG.warn("deleting device with imei={}" + imei);
