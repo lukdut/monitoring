@@ -32,8 +32,11 @@ public class DeviceService {
         long id = 0;
         if (imei != null && imei != 0 & !sensorRepository.existsByImei(imei)) {
             try {
-                id = sensorRepository.save(new Sensor(imei)).getId();
-                LOG.info("New device registered with imei {}", imei);
+                Sensor sensor = new Sensor(imei);
+                sensor.setDescription(deviceDto.getDescription());
+                sensor.setName(deviceDto.getName());
+                id = sensorRepository.save(sensor).getId();
+                LOG.info("New device registered with imei {} and id {}", imei, id);
             } catch (Exception e) {
                 LOG.warn("Can not register new device with imei={}", imei, e);
             }

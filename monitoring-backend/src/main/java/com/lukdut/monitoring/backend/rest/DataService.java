@@ -56,7 +56,7 @@ public class DataService {
             if (beginDate.getTime() >= endDate.getTime()) {
                 result = new ArrayList<>();
             } else {
-                result = dataRepository.findDataLog(imei, new Date(beginTimestamp), endDate).stream()
+                result = dataRepository.findDataLog(imei, beginDate, endDate).stream()
                         .map(SensorMessage::getData).collect(Collectors.toList());
             }
         }
