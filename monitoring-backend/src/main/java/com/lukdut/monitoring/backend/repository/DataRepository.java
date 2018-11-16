@@ -19,8 +19,8 @@ public interface DataRepository extends PagingAndSortingRepository<SensorMessage
             nativeQuery = true)
     List<SensorMessage> findLastData(@Param("imeiList") List<Long> imeiList);
 
-    @Query("select msg from SensorMessage msg where msg.imei=:imei and msg.timestamp>:from and msg.timestamp<=:to" +
-            " ORDER BY msg.timestamp asc ")
+    @Query("select msg from SensorMessage msg where msg.imei=:imei and msg.timestamp>:from " +
+            "and msg.timestamp<=:to and msg.data is not null ORDER BY msg.timestamp asc")
     List<SensorMessage> findDataLog(@Param("imei") Long imei,
                                     @Param("from") Date begin,
                                     @Param("to") Date to);

@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.*;
+import java.util.concurrent.ThreadLocalRandom;
 import java.util.stream.Collectors;
 
 @RestController
@@ -61,5 +62,12 @@ public class DataService {
             }
         }
         return result;
+    }
+
+    @GetMapping("/aggregatedData")
+    @ApiOperation(value = "Read aggregated data (Now stubbed!)",
+            notes = "Will get all aggregated data for the given imei in specified time period.")
+    public Long getAggregatedData(Long imei, Long beginTimestamp, Long endTimestamp) {
+        return ThreadLocalRandom.current().nextLong(0, 1000);
     }
 }

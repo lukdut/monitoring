@@ -44,12 +44,18 @@ public class DeviceService {
         return id;
     }
 
-    @GetMapping("/knownImei")
-    @ApiOperation(value = "Read all registered imeis")
-    public Collection<Long> all() {
-        LOG.debug("getting all devices' imeis");
+    @GetMapping("/all")
+    @ApiOperation(value = "Read all registered devices")
+    public Collection<DeviceDto> all() {
+        LOG.debug("getting all devices");
         return StreamSupport.stream(sensorRepository.findAll().spliterator(), false)
-                .map(Sensor::getImei)
+                .map(sensor -> {
+                    DeviceDto deviceDto = new DeviceDto();
+                    deviceDto.setDescription(sensor.getDescription());
+                    deviceDto.setImei(sensor.getImei());
+                    deviceDto.setName(sensor.getName());
+                    return deviceDto;
+                })
                 .collect(Collectors.toList());
     }
 
@@ -77,7 +83,7 @@ public class DeviceService {
     @ApiOperation(value = "!!! Delete device with the specified imei !!!")
     public void del(@RequestParam Long imei) {
         if (imei != null && imei != 0) {
-            LOG.warn("deleting device with imei={}" + imei);
+            LOG.warn("deleting device with imei={}", imei);
             sensorRepository.deleteByImei(imei);
         }
     }
