@@ -14,6 +14,7 @@ import java.util.stream.Collectors;
 @RestController
 @RequestMapping("/data")
 public class DataService {
+    private static final long MS_IN_DAY = 24 * 60 * 60 * 1000;
     private final DataRepository dataRepository;
 
     public DataService(DataRepository dataRepository) {
@@ -34,7 +35,9 @@ public class DataService {
 
     @GetMapping("/log")
     @ApiOperation(value = "Read data array for specified device",
-            notes = "Will get all data for device with the given imei between two unix-time timestamps (in milliseconds)")
+            notes = "Will get all data for device with the given imei between two unix-time timestamps (in milliseconds)\n"
+                    + "If endTimestamp is not set, endTimestamp = now\n"
+                    + "If beginTimestamp is not set, beginTimestamp = endTimestamp - 1 day")
     public List<String> getLogData(Long imei, Long beginTimestamp, Long endTimestamp) {
         List<String> result;
         if (imei == null || imei == 0) {
@@ -49,7 +52,7 @@ public class DataService {
 
             Date beginDate;
             if (beginTimestamp == null) {
-                beginDate = new Date(0);
+                beginDate = new Date(endDate.getTime() - MS_IN_DAY);
             } else {
                 beginDate = new Date(beginTimestamp);
             }
