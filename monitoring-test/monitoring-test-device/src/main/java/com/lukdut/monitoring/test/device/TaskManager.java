@@ -76,28 +76,23 @@ public class TaskManager {
         @Override
         public void run() {
             while (isRunning) {
-                thread = new Thread(() -> {
-                    long start = System.currentTimeMillis();
-                    int counter = 0;
-                    for (int i = 0; i < speed; i++) {
-                        dataSender.sendMessage(dataSource.get(counter));
-                        counter++;
-                        if (dataSource.size() == counter) {
-                            counter = 0;
+                if (thread == null || !thread.isAlive()) {
+                    actualSpeed.set(0);
+                    thread = new Thread(() -> {
+                        int counter = 0;
+                        for (int i = 0; i < speed && isRunning; i++) {
+                            dataSender.sendMessage(dataSource.get(counter));
+                            counter++;
+                            actualSpeed.incrementAndGet();
+                            if (dataSource.size() == counter) {
+                                counter = 0;
+                            }
                         }
-                    }
-
-                    long processTime = System.currentTimeMillis() - start;
-
-                    if (processTime > 1000) {
-                        actualSpeed.set((int) (speed / (processTime / 1000)));
-                        System.out.println("Max speed reached = " + actualSpeed + " events per second");
-                    } else {
-                        actualSpeed.set(speed);
-                    }
-                });
-
-                thread.start();
+                    });
+                    thread.start();
+                } else {
+                    System.out.println("Max speed reached: " + actualSpeed.get());
+                }
 
                 try {
                     Thread.sleep(1000);
