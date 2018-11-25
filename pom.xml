@@ -25,6 +25,12 @@
             </dependency>
 
             <dependency>
+                <groupId>org.springframework.shell</groupId>
+                <artifactId>spring-shell-starter</artifactId>
+                <version>2.0.1.RELEASE</version>
+            </dependency>
+
+            <dependency>
                 <groupId>org.springframework.data</groupId>
                 <artifactId>spring-data-commons-core</artifactId>
                 <version>1.4.1.RELEASE</version>
@@ -42,5 +48,6 @@
         <module>monitoring-gateway</module>
         <module>monitoring-gateway-dto</module>
         <module>monitoring-backend</module>
+        <module>monitoring-test</module>
     </modules>
 </project>
