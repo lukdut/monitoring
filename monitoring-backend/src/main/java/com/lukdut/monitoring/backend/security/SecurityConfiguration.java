@@ -1,6 +1,6 @@
 package com.lukdut.monitoring.backend.security;
 
-import com.lukdut.monitoring.backend.rest.RestAuthenticationEntryPoint;
+import com.lukdut.monitoring.backend.rest.util.RestAuthenticationEntryPoint;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
@@ -37,7 +37,8 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
                 .authenticationEntryPoint(restAuthenticationEntryPoint)
                 .and()
                 .authorizeRequests()
-                .antMatchers("/device/delete").hasRole(Roles.ADMIN)
+                .antMatchers("/user/**", "/device/add", "/device/delete").hasRole(Roles.ADMIN.name())
+                .antMatchers("/command/**", "/device/update").hasAnyRole(Roles.ADMIN.name(), Roles.MANAGER.name())
                 .anyRequest().authenticated()
                 .and()
                 .sessionManagement().disable()
@@ -53,7 +54,7 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 
     @Bean
     public DaoAuthenticationProvider authenticationProvider() {
-        DaoAuthenticationProvider authProvider  = new DaoAuthenticationProvider();
+        DaoAuthenticationProvider authProvider = new DaoAuthenticationProvider();
         authProvider.setUserDetailsService(userDetailsService);
         authProvider.setPasswordEncoder(encoder());
         return authProvider;

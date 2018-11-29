@@ -1,4 +1,4 @@
-package com.lukdut.monitoring.backend.rest.resources;
+package com.lukdut.monitoring.backend.rest.dto;
 
 import java.io.Serializable;
 

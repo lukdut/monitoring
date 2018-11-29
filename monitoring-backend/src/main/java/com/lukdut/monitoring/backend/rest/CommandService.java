@@ -3,7 +3,7 @@ package com.lukdut.monitoring.backend.rest;
 import com.lukdut.monitoring.backend.model.Command;
 import com.lukdut.monitoring.backend.repository.CommandRepository;
 import com.lukdut.monitoring.backend.repository.SensorRepository;
-import com.lukdut.monitoring.backend.rest.resources.CommandDto;
+import com.lukdut.monitoring.backend.rest.dto.CommandDto;
 import com.lukdut.monitoring.gateway.dto.CommandState;
 import io.swagger.annotations.ApiOperation;
 import org.slf4j.Logger;

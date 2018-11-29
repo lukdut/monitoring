@@ -39,13 +39,13 @@ public class MonitoringBackendApplication {
     }
 
     private SecurityScheme securityScheme() {
-        return new BasicAuth("spring_oauth");
+        return new BasicAuth("basic");
     }
 
     private SecurityContext securityContext() {
         return SecurityContext.builder()
                 .securityReferences(
-                        Collections.singletonList(new SecurityReference("spring_oauth", new AuthorizationScope[]{})))
+                        Collections.singletonList(new SecurityReference("basic", new AuthorizationScope[]{})))
                 .forPaths(PathSelectors.regex("/.*"))
                 .build();
     }

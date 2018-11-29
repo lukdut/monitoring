@@ -2,7 +2,7 @@ package com.lukdut.monitoring.backend.rest;
 
 import com.lukdut.monitoring.backend.model.Sensor;
 import com.lukdut.monitoring.backend.repository.SensorRepository;
-import com.lukdut.monitoring.backend.rest.resources.DeviceDto;
+import com.lukdut.monitoring.backend.rest.dto.DeviceDto;
 import io.swagger.annotations.ApiOperation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

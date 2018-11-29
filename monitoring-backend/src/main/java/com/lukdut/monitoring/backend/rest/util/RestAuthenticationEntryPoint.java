@@ -1,4 +1,4 @@
-package com.lukdut.monitoring.backend.rest;
+package com.lukdut.monitoring.backend.rest.util;
 
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.AuthenticationEntryPoint;

@@ -9,6 +9,8 @@ import org.springframework.stereotype.Service;
 
 import javax.annotation.PostConstruct;
 
+import static com.lukdut.monitoring.backend.security.Roles.ROLE_PREFIX;
+
 @Service
 public class FirstRunUserAddService {
     private static final Logger LOG = LoggerFactory.getLogger(FirstRunUserAddService.class);
@@ -28,7 +30,7 @@ public class FirstRunUserAddService {
             User user = new User();
             user.setUsername("admin");
             user.setPassword(passwordEncoder.encode("admin"));
-            user.setRole(Roles.ROLE_ADMIN);
+            user.setRole(ROLE_PREFIX+Roles.ADMIN.name());
             userRepository.save(user);
         }
     }
