@@ -6,6 +6,7 @@ import com.lukdut.monitoring.backend.rest.dto.ResponseDto;
 import com.lukdut.monitoring.backend.rest.dto.UserDto;
 import com.lukdut.monitoring.backend.security.Roles;
 import io.swagger.annotations.ApiOperation;
+import org.springframework.security.acls.model.AclService;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
@@ -21,10 +22,12 @@ import static com.lukdut.monitoring.backend.security.Roles.ROLE_PREFIX;
 public class UserService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
+    private final AclService aclService;
 
-    public UserService(UserRepository userRepository, PasswordEncoder passwordEncoder) {
+    public UserService(UserRepository userRepository, PasswordEncoder passwordEncoder, AclService aclService) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
+        this.aclService = aclService;
     }
 
     @GetMapping("/all")
@@ -62,7 +65,9 @@ public class UserService {
         newUser.setRole(ROLE_PREFIX + userDto.getRole().name());
         newUser.setUsername(userDto.getUsername());
         newUser.setPassword(passwordEncoder.encode(userDto.getPassword()));
-        return userRepository.save(newUser).getId();
+        Long userId = userRepository.save(newUser).getId();
+
+        return userId;
     }
 
     @PutMapping("/setRole")

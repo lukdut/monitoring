@@ -6,11 +6,15 @@ import com.lukdut.monitoring.backend.rest.dto.DeviceDto;
 import io.swagger.annotations.ApiOperation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.security.acls.domain.BasePermission;
 import org.springframework.security.acls.domain.ObjectIdentityImpl;
+import org.springframework.security.acls.domain.PrincipalSid;
 import org.springframework.security.acls.model.MutableAcl;
 import org.springframework.security.acls.model.MutableAclService;
+import org.springframework.security.acls.model.Sid;
 import org.springframework.web.bind.annotation.*;
 
+import javax.transaction.Transactional;
 import java.util.Collection;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -32,6 +36,7 @@ public class DeviceService {
     @PostMapping("/add")
     @ApiOperation(value = "Register new device",
             notes = "Will register new device with the specified imei, returns 0 if failed or already exists")
+    @Transactional
     public synchronized long add(@RequestBody DeviceDto deviceDto) {
         Long imei = deviceDto.getImei();
         long id = 0;
@@ -44,6 +49,8 @@ public class DeviceService {
                 LOG.info("New device registered with imei {} and id {}", imei, id);
 
                 final MutableAcl acl = aclService.createAcl(new ObjectIdentityImpl(Sensor.class, id));
+                Sid sid = new PrincipalSid("admin");
+                acl.insertAce(acl.getEntries().size(), BasePermission.ADMINISTRATION, sid, true);
                 aclService.updateAcl(acl);
             } catch (Exception e) {
                 LOG.warn("Can not register new device with imei={}", imei, e);
