@@ -6,6 +6,9 @@ import com.lukdut.monitoring.backend.rest.dto.DeviceDto;
 import io.swagger.annotations.ApiOperation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.security.acls.domain.ObjectIdentityImpl;
+import org.springframework.security.acls.model.MutableAcl;
+import org.springframework.security.acls.model.MutableAclService;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Collection;
@@ -19,9 +22,11 @@ public class DeviceService {
     private static final Logger LOG = LoggerFactory.getLogger(DeviceService.class);
 
     private final SensorRepository sensorRepository;
+    private final MutableAclService aclService;
 
-    public DeviceService(SensorRepository sensorRepository) {
+    public DeviceService(SensorRepository sensorRepository, MutableAclService aclService) {
         this.sensorRepository = sensorRepository;
+        this.aclService = aclService;
     }
 
     @PostMapping("/add")
@@ -37,6 +42,9 @@ public class DeviceService {
                 sensor.setName(deviceDto.getName());
                 id = sensorRepository.save(sensor).getId();
                 LOG.info("New device registered with imei {} and id {}", imei, id);
+
+                final MutableAcl acl = aclService.createAcl(new ObjectIdentityImpl(Sensor.class, id));
+                aclService.updateAcl(acl);
             } catch (Exception e) {
                 LOG.warn("Can not register new device with imei={}", imei, e);
             }
@@ -81,10 +89,16 @@ public class DeviceService {
 
     @DeleteMapping("/delete")
     @ApiOperation(value = "!!! Delete device with the specified imei !!!")
-    public void del(@RequestParam Long imei) {
+    public synchronized void del(@RequestParam Long imei) {
         if (imei != null && imei != 0) {
-            LOG.warn("deleting device with imei={}", imei);
-            sensorRepository.deleteByImei(imei);
+            Optional<Sensor> byImei = sensorRepository.findByImei(imei);
+            if (!byImei.isPresent()) {
+                LOG.info("Device with imei={} does not exist", imei);
+            } else {
+                LOG.warn("deleting device with imei={}", imei);
+                sensorRepository.deleteByImei(imei);
+                aclService.deleteAcl(new ObjectIdentityImpl(Sensor.class, byImei.get().getId()), true);
+            }
         }
     }
 

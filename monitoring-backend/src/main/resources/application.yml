@@ -11,10 +11,10 @@ spring:
     username: test
     password: test
     driverClassName: org.h2.Driver
+    schema: classpath:acl-schema.sql
   jpa:
     hibernate:
       ddl-auto: update
-
 management:
   endpoints:
     web:
