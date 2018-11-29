@@ -2,7 +2,9 @@ package com.lukdut.monitoring.backend.rest;
 
 import com.lukdut.monitoring.backend.model.Sensor;
 import com.lukdut.monitoring.backend.repository.SensorRepository;
+import com.lukdut.monitoring.backend.repository.UserRepository;
 import com.lukdut.monitoring.backend.rest.dto.DeviceDto;
+import com.lukdut.monitoring.backend.rest.dto.ResponseDto;
 import io.swagger.annotations.ApiOperation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -26,10 +28,12 @@ public class DeviceService {
     private static final Logger LOG = LoggerFactory.getLogger(DeviceService.class);
 
     private final SensorRepository sensorRepository;
+    private final UserRepository userRepository;
     private final MutableAclService aclService;
 
-    public DeviceService(SensorRepository sensorRepository, MutableAclService aclService) {
+    public DeviceService(SensorRepository sensorRepository, UserRepository userRepository, MutableAclService aclService) {
         this.sensorRepository = sensorRepository;
+        this.userRepository = userRepository;
         this.aclService = aclService;
     }
 
@@ -107,6 +111,35 @@ public class DeviceService {
                 aclService.deleteAcl(new ObjectIdentityImpl(Sensor.class, byImei.get().getId()), true);
             }
         }
+    }
+
+    @PutMapping("/assign")
+    @ApiOperation(value = "Get device status",
+            notes = "Will return status of the command device specified imei")
+    @Transactional
+    public ResponseDto assign(@RequestParam Long imei, @RequestParam String username) {
+        if (imei == null || imei == 0) {
+            return ResponseDto.failResponse("imei must be set");
+        }
+
+        if (username == null || username.isEmpty()) {
+            return ResponseDto.failResponse("username must be set");
+        }
+
+        Optional<Sensor> optionalSensor = sensorRepository.findByImei(imei);
+        if (!optionalSensor.isPresent()) {
+            return ResponseDto.failResponse("device with imei " + imei + " does not exist");
+        }
+        if (!userRepository.findByUsername(username).isPresent()) {
+            return ResponseDto.failResponse("user with name " + username + " does not exist");
+        }
+
+        Sensor sensor = optionalSensor.get();
+        final MutableAcl acl = aclService.createAcl(new ObjectIdentityImpl(Sensor.class, sensor.getId()));
+        Sid sid = new PrincipalSid("username");
+        acl.insertAce(acl.getEntries().size(), BasePermission.READ, sid, true);
+        aclService.updateAcl(acl);
+        return ResponseDto.okResponse();
     }
 
     @GetMapping("/status")
