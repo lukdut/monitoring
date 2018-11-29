@@ -1,25 +1,27 @@
-package com.lukdut.monitoring.backend;
+package com.lukdut.monitoring.backend.security;
 
 import com.lukdut.monitoring.backend.rest.RestAuthenticationEntryPoint;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
-import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
+import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.builders.WebSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 @EnableWebSecurity
 public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
-    private static final Logger LOG = LoggerFactory.getLogger(SecurityConfiguration.class);
-
     private final RestAuthenticationEntryPoint restAuthenticationEntryPoint;
+    private final UserDetailsService userDetailsService;
 
     public SecurityConfiguration(
-            RestAuthenticationEntryPoint restAuthenticationEntryPoint) {
+            RestAuthenticationEntryPoint restAuthenticationEntryPoint,
+            @Qualifier("DBUserDetailsService") UserDetailsService userDetailsService) {
         this.restAuthenticationEntryPoint = restAuthenticationEntryPoint;
+        this.userDetailsService = userDetailsService;
     }
 
     @Override
@@ -35,7 +37,7 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
                 .authenticationEntryPoint(restAuthenticationEntryPoint)
                 .and()
                 .authorizeRequests()
-                .antMatchers("/device/delete").hasRole("ADMIN")
+                .antMatchers("/device/delete").hasRole(Roles.ADMIN)
                 .anyRequest().authenticated()
                 .and()
                 .sessionManagement().disable()
@@ -45,25 +47,20 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
     }
 
     @Bean
-    public PasswordEncoder passwordEncoder() {
-        return new PasswordEncoder() {
-            @Override
-            public String encode(CharSequence charSequence) {
-                return charSequence.toString();
-            }
+    public PasswordEncoder encoder() {
+        return new BCryptPasswordEncoder();
+    }
 
-            @Override
-            public boolean matches(CharSequence charSequence, String s) {
-                return charSequence.toString().equals(s);
-            }
-        };
+    @Bean
+    public DaoAuthenticationProvider authenticationProvider() {
+        DaoAuthenticationProvider authProvider  = new DaoAuthenticationProvider();
+        authProvider.setUserDetailsService(userDetailsService);
+        authProvider.setPasswordEncoder(encoder());
+        return authProvider;
     }
 
     @Override
-    protected void configure(final AuthenticationManagerBuilder auth) throws Exception {
-        auth.inMemoryAuthentication()
-                .withUser("admin").password("admin").roles("ADMIN")
-                .and()
-                .withUser("user").password("user").roles("USER");
+    protected UserDetailsService userDetailsService() {
+        return userDetailsService;
     }
 }
