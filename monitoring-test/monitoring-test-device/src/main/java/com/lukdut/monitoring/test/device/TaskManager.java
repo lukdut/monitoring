@@ -21,7 +21,7 @@ public class TaskManager {
     private final DataSender dataSender;
 
     private DataProducer task;
-    private List<IncomingSensorMessage> dataSource = Collections.singletonList(new IncomingSensorMessage());
+    private volatile List<IncomingSensorMessage> dataSource = Collections.singletonList(new IncomingSensorMessage());
     private AtomicInteger actualSpeed = new AtomicInteger();
 
     TaskManager(DataSender dataSender) {
@@ -62,6 +62,7 @@ public class TaskManager {
         private volatile int speed;
         private final AtomicInteger actualSpeed;
         private volatile Thread thread;
+        int counter = 0;
 
         DataProducer(List<IncomingSensorMessage> dataSource, int desiredSpeed, AtomicInteger actualSpeed) {
             this.dataSource = dataSource;
@@ -79,7 +80,6 @@ public class TaskManager {
                 if (thread == null || !thread.isAlive()) {
                     actualSpeed.set(0);
                     thread = new Thread(() -> {
-                        int counter = 0;
                         for (int i = 0; i < speed && isRunning; i++) {
                             dataSender.sendMessage(dataSource.get(counter));
                             counter++;

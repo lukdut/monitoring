@@ -26,6 +26,6 @@ public class DataSender {
     }
 
     private String serializeMessage(IncomingSensorMessage message) {
-        return "{\"imei\":1}\r\n";
+        return "{\"imei\":" + message.getImei() + ", \"gpsData\":\"" + message.getGpsData() + "\"}\r\n";
     }
 }

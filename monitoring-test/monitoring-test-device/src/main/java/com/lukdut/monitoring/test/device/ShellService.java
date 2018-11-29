@@ -7,7 +7,11 @@ import org.springframework.shell.standard.ShellComponent;
 import org.springframework.shell.standard.ShellMethod;
 import org.springframework.shell.standard.ShellOption;
 
-import java.util.Collections;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @ShellComponent
 public class ShellService {
@@ -19,9 +23,16 @@ public class ShellService {
     }
 
     @ShellMethod("Load messages source file")
-    public void load(@ShellOption String fileName) {
-        //TODO: create message list from file
-        taskManager.updateDataSet(Collections.singletonList(new IncomingSensorMessage()));
+    public void load(@ShellOption String fileName) throws IOException {
+        List<IncomingSensorMessage> messages = Files.lines(Paths.get(fileName))
+                .map(s -> {
+                    LOG.debug("Found line: {}", s);
+                    IncomingSensorMessage incomingSensorMessage = new IncomingSensorMessage();
+                    incomingSensorMessage.setGpsData(s);
+                    incomingSensorMessage.setImei(1);
+                    return incomingSensorMessage;
+                }).collect(Collectors.toList());
+        taskManager.updateDataSet(messages);
     }
 
     @ShellMethod("Start data producing with the specified speed (in messages per second, default is 1)")
