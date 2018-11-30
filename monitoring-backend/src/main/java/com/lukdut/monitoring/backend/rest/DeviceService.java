@@ -9,13 +9,13 @@ import io.swagger.annotations.ApiOperation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.security.access.prepost.PostFilter;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.acls.domain.BasePermission;
 import org.springframework.security.acls.domain.ObjectIdentityImpl;
 import org.springframework.security.acls.domain.PrincipalSid;
 import org.springframework.security.acls.model.AccessControlEntry;
 import org.springframework.security.acls.model.MutableAcl;
 import org.springframework.security.acls.model.MutableAclService;
-import org.springframework.security.acls.model.Sid;
 import org.springframework.web.bind.annotation.*;
 
 import javax.transaction.Transactional;
@@ -56,8 +56,6 @@ public class DeviceService {
                 LOG.info("New device registered with imei {} and id {}", imei, id);
 
                 final MutableAcl acl = aclService.createAcl(new ObjectIdentityImpl(Sensor.class, imei));
-                Sid sid = new PrincipalSid("admin");
-                acl.insertAce(acl.getEntries().size(), BasePermission.ADMINISTRATION, sid, true);
                 aclService.updateAcl(acl);
             } catch (Exception e) {
                 LOG.warn("Can not register new device with imei={}", imei, e);
@@ -68,7 +66,7 @@ public class DeviceService {
 
     @GetMapping("/all")
     @ApiOperation(value = "Read all registered devices")
-    @PostFilter("hasRole('ROLE_ADMIN') || hasPermission(filterObject.imei, 'READ')")
+    @PostFilter("hasRole('ROLE_ADMIN') || hasPermission(filterObject.imei, 'READ') || hasPermission(filterObject.imei, 'WRITE')")
     public Collection<DeviceDto> all() {
         LOG.debug("getting all devices");
         return StreamSupport.stream(sensorRepository.findAll().spliterator(), false)
@@ -83,8 +81,7 @@ public class DeviceService {
     }
 
     @PutMapping("/update")
-    @ApiOperation(value = "Update device",
-            notes = "Will update device info with the specified imei")
+    @ApiOperation(value = "Update device", notes = "Will update device info with the specified imei")
     public synchronized void update(@RequestBody DeviceDto deviceDto) {
         LOG.debug("Updating device " + deviceDto);
         if (deviceDto.getImei() != null && deviceDto.getImei() != 0) {
@@ -118,8 +115,7 @@ public class DeviceService {
     }
 
     @PutMapping("/assign")
-    @ApiOperation(value = "Get device status",
-            notes = "Will return status of the command device specified imei")
+    @ApiOperation(value = "Get device status", notes = "Will return status of the command device specified imei")
     @Transactional
     public ResponseDto assign(@RequestParam Long imei, @RequestParam String username) {
         if (imei == null || imei == 0) {
@@ -169,6 +165,7 @@ public class DeviceService {
     @GetMapping("/status")
     @ApiOperation(value = "Get device status",
             notes = "Will return status of the command device specified imei")
+    @PreAuthorize("hasRole('ROLE_ADMIN') || hasPermission(#imei, 'READ') || hasPermission(#imei, 'WRITE')")
     public String status(@RequestParam Long imei) {
         if (imei == null || imei == 0) {
             return "ABSENT";

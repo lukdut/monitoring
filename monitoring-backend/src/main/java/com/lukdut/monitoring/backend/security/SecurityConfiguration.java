@@ -39,8 +39,8 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
                 .authenticationEntryPoint(restAuthenticationEntryPoint)
                 .and()
                 .authorizeRequests()
-                .antMatchers("/user/**", "/device/add", "/device/delete").hasRole(Roles.ADMIN.name())
-                .antMatchers("/command/**", "/device/update").hasAnyRole(Roles.ADMIN.name(), Roles.MANAGER.name())
+                .antMatchers("/user/**", "/device/add", "/device/delete", "/device/update", "/device/assign").hasRole(Roles.ADMIN.name())
+                .antMatchers("/command/**").hasAnyRole(Roles.ADMIN.name(), Roles.MANAGER.name())
                 .anyRequest().authenticated()
                 .and()
                 .httpBasic();
