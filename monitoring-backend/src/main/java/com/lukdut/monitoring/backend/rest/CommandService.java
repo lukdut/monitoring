@@ -11,6 +11,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.messaging.MessageChannel;
 import org.springframework.messaging.support.MessageBuilder;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Optional;
@@ -36,6 +37,7 @@ public class CommandService {
     @PostMapping("/add")
     @ApiOperation(value = "Create new command",
             notes = "Will create new command for device with the specified imei, returns created command's id")
+    @PreAuthorize("hasRole('ROLE_ADMIN') || (hasRole('ROLE_MANAGER') && hasPermission(#commandDto.imei, 'WRITE'))")
     public Long add(@RequestBody CommandDto commandDto) {
         if (commandDto == null || commandDto.getImei() == 0 || commandDto.getCommand() == null) {
             return 0L;
