@@ -4,8 +4,10 @@ import com.lukdut.monitoring.backend.model.SensorMessage;
 import com.lukdut.monitoring.backend.repository.DataRepository;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.access.prepost.PreFilter;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.*;
@@ -25,12 +27,12 @@ public class DataService {
     @GetMapping("/lastData")
     @ApiOperation(value = "Read last data for every specified device",
             notes = "Will get all data for every device with the given imei")
-    //TODO Filter imeis
-    public Map<Long, String> getLastData(Long[] imeis) {
-        if (imeis == null || imeis.length == 0) {
+    @PreFilter("hasRole('ROLE_ADMIN') || @imeisArrayFilter.filter(authentication, #imeis)")
+    public Map<Long, String> getLastData(@RequestParam ArrayList<Long> imeis) {
+        if (imeis == null || imeis.size() == 0) {
             return new HashMap<>();
         } else {
-            return dataRepository.findLastData(Arrays.asList(imeis)).stream()
+            return dataRepository.findLastData(imeis).stream()
                     .collect(Collectors.toMap(SensorMessage::getImei, SensorMessage::getData));
         }
     }
