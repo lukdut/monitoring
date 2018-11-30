@@ -8,9 +8,11 @@ import com.lukdut.monitoring.backend.rest.dto.ResponseDto;
 import io.swagger.annotations.ApiOperation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.security.access.prepost.PostFilter;
 import org.springframework.security.acls.domain.BasePermission;
 import org.springframework.security.acls.domain.ObjectIdentityImpl;
 import org.springframework.security.acls.domain.PrincipalSid;
+import org.springframework.security.acls.model.AccessControlEntry;
 import org.springframework.security.acls.model.MutableAcl;
 import org.springframework.security.acls.model.MutableAclService;
 import org.springframework.security.acls.model.Sid;
@@ -18,6 +20,7 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.transaction.Transactional;
 import java.util.Collection;
+import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
@@ -52,7 +55,7 @@ public class DeviceService {
                 id = sensorRepository.save(sensor).getId();
                 LOG.info("New device registered with imei {} and id {}", imei, id);
 
-                final MutableAcl acl = aclService.createAcl(new ObjectIdentityImpl(Sensor.class, id));
+                final MutableAcl acl = aclService.createAcl(new ObjectIdentityImpl(Sensor.class, imei));
                 Sid sid = new PrincipalSid("admin");
                 acl.insertAce(acl.getEntries().size(), BasePermission.ADMINISTRATION, sid, true);
                 aclService.updateAcl(acl);
@@ -65,6 +68,7 @@ public class DeviceService {
 
     @GetMapping("/all")
     @ApiOperation(value = "Read all registered devices")
+    @PostFilter("hasRole('ROLE_ADMIN') || hasPermission(filterObject.imei, 'READ')")
     public Collection<DeviceDto> all() {
         LOG.debug("getting all devices");
         return StreamSupport.stream(sensorRepository.findAll().spliterator(), false)
@@ -108,7 +112,7 @@ public class DeviceService {
             } else {
                 LOG.warn("deleting device with imei={}", imei);
                 sensorRepository.deleteByImei(imei);
-                aclService.deleteAcl(new ObjectIdentityImpl(Sensor.class, byImei.get().getId()), true);
+                aclService.deleteAcl(new ObjectIdentityImpl(Sensor.class, byImei.get().getImei()), true);
             }
         }
     }
@@ -135,10 +139,30 @@ public class DeviceService {
         }
 
         Sensor sensor = optionalSensor.get();
-        final MutableAcl acl = aclService.createAcl(new ObjectIdentityImpl(Sensor.class, sensor.getId()));
-        Sid sid = new PrincipalSid("username");
-        acl.insertAce(acl.getEntries().size(), BasePermission.READ, sid, true);
-        aclService.updateAcl(acl);
+
+        ObjectIdentityImpl objectIdentity = new ObjectIdentityImpl(Sensor.class, sensor.getImei());
+        MutableAcl acl = (MutableAcl) aclService.readAclById(objectIdentity);
+
+        PrincipalSid sid = new PrincipalSid(username);
+        if (acl == null) {
+            acl = aclService.createAcl(objectIdentity);
+            acl.insertAce(acl.getEntries().size(), BasePermission.READ, sid, true);
+            aclService.updateAcl(acl);
+        } else {
+            List<AccessControlEntry> entries = acl.getEntries();
+            if (entries != null) {
+                Optional<AccessControlEntry> foundAce = entries.stream()
+                        .filter(ace -> ace.getSid().equals(sid))
+                        .findFirst();
+                if (!foundAce.isPresent()) {
+                    acl.insertAce(acl.getEntries().size(), BasePermission.READ, sid, true);
+                    aclService.updateAcl(acl);
+                } else {
+                    LOG.debug("Permission already granted");
+                }
+            }
+        }
+
         return ResponseDto.okResponse();
     }
 

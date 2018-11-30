@@ -27,7 +27,7 @@ public class AclContext {
     public MethodSecurityExpressionHandler defaultMethodSecurityExpressionHandler() {
         DefaultMethodSecurityExpressionHandler expressionHandler = new DefaultMethodSecurityExpressionHandler();
         AclPermissionEvaluator permissionEvaluator = new AclPermissionEvaluator(aclService());
-        permissionEvaluator.setObjectIdentityRetrievalStrategy(new BookIdentityRetrieval());
+        permissionEvaluator.setObjectIdentityRetrievalStrategy(new SensorIdentityRetrieval());
         expressionHandler.setPermissionEvaluator(permissionEvaluator);
         return expressionHandler;
     }
